@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Evaluación Deportiva</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2196F3">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>📊 Evaluación Deportiva</h1>
+            <div class="header-controls">
+                <button class="btn btn-secondary" onclick="importarDatos()">📥 Importar</button>
+                <button class="btn btn-secondary" onclick="exportarDatos()">📤 Exportar</button>
+            </div>
+        </header>
+
+        <!-- Control de Lambda Global -->
+        <div class="card">
+            <h3>⚙️ Configuración de Decaimiento</h3>
+            <div class="lambda-control">
+                <label for="lambdaGlobal">Factor λ (0.1 - 1.0):</label>
+                <input type="range" id="lambdaGlobal" min="0.1" max="1" step="0.05" value="0.95">
+                <span id="lambdaValue">0.75</span>
+            </div>
+            <p class="help-text">
+                <strong>λ menor:</strong> Más peso al presente | 
+                <strong>λ mayor:</strong> Conserva más el historial
+            </p>
+        </div>
+
+        <!-- Gestión de Equipos -->
+        <div class="card">
+            <h3>👥 Gestión de Equipos</h3>
+            <div class="input-group">
+                <input type="text" id="nombreEquipo" placeholder="Nombre del equipo">
+                <button class="btn btn-primary" onclick="agregarEquipo()">➕ Agregar Equipo</button>
+            </div>
+            <div id="listaEquipos" class="equipos-lista"></div>
+        </div>
+
+        <!-- Registro de Pruebas -->
+        <div class="card">
+            <h3>📝 Registro de Pruebas</h3>
+            <div class="prueba-form">
+                <input type="date" id="fechaPrueba">
+                <select id="equipoSeleccionado">
+                    <option value="">Seleccionar equipo...</option>
+                </select>
+                <input type="number" id="puntajePrueba" placeholder="Puntaje" step="0.01">
+                <button class="btn btn-primary" onclick="agregarPuntaje()">➕ Agregar Puntaje</button>
+            </div>
+            
+            <div id="puntajesActuales" class="puntajes-preview"></div>
+        </div>
+
+        <!-- Tabla de Resultados -->
+        <div class="card">
+            <h3>🏆 Ranking Actual</h3>
+            <div class="table-container">
+                <table id="tablaResultados">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Equipo</th>
+                            <th>Puntaje Ponderado</th>
+                            <th>Pruebas</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Gráfico de Evolución -->
+        <div class="card">
+            <h3>📈 Evolución Temporal</h3>
+            <select id="equipoGrafico">
+                <option value="">Seleccionar equipo para gráfico...</option>
+                <option value="all_teams">🏆 Todos los equipos</option>
+            </select>
+            <div id="contenedorGrafico">
+                <canvas id="graficoEvolucion" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Estado de Guardado -->
+        <div class="status-bar">
+            <span id="estadoGuardado">💾 Datos guardados automáticamente</span>
+            <span id="ultimaActualizacion"></span>
+        </div>
+    </div>
+
+    <!-- Modal de Histórico -->
+    <div id="modalHistorico" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModalHistorico()">&times;</span>
+            <h3>📊 Histórico del Equipo</h3>
+            <div id="contenidoHistorico"></div>
+        </div>
+    </div>
+
+    <!-- Input invisible para importar archivos -->
+    <input type="file" id="archivoImportar" accept=".json,.csv" style="display: none;">
+
+    <script src="lib/chart.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

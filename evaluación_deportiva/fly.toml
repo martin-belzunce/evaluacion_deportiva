@@ -1,0 +1,33 @@
+# Fly.io deployment configuration for Sports Evaluation System
+
+app = "sports-evaluation"
+primary_region = "ewr"  # Newark, NJ (change to your preferred region)
+
+[build]
+
+[env]
+  PORT = "8080"
+  FLASK_ENV = "production"
+  DATABASE_PATH = "/data/sports_evaluation.db"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    method = "GET"
+    path = "/api/health"
+
+[mounts]
+  source = "sports_data"
+  destination = "/data"
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
