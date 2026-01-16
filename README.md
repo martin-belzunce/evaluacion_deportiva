@@ -1,211 +1,178 @@
 # Sistema de Evaluación Deportiva
 
-A comprehensive sports evaluation system with exponential decay ranking algorithm, built with a typed Python backend and modern JavaScript frontend.
+Un sistema integral de evaluación deportiva con un algoritmo de clasificación de decaimiento exponencial, desarrollado con un backend de Python tipado y una moderna interfaz de JavaScript.
 
-## 📁 Project Structure
+## 📁 Estructura del proyecto
 
 ```
 evaluación_deportiva/
-├── backend/                    # Python backend with full type hints
-│   ├── app.py                 # Main Flask application (with database)
-│   ├── test_server.py         # Test server (in-memory, no database)
-│   ├── requirements.txt       # Python dependencies
-│   ├── .env                   # Environment variables
-│   └── database.sql          # Database schema
-├── frontend/                   # Frontend static files
-│   ├── index.html            # Main HTML file
-│   ├── app.js                # JavaScript application
-│   ├── styles.css            # CSS styles
-│   ├── server.py             # Development server
-│   └── lib/                  # External libraries
-│       └── chart.min.js      # Chart.js for graphs
-└── README.md                 # This file
+├── backend/              # Backend de Python con sugerencias de tipos completas
+│ ├── app.py              # Aplicación principal de Flask (con base de datos)
+│ ├── test_server.py      # Servidor de pruebas (en memoria, sin base de datos)
+│ ├── requirements.txt    # Dependencias de Python
+│ ├── .env                # Variables de entorno
+│ └── database.sql        # Esquema de la base de datos
+├── frontend/             # Archivos estáticos del frontend
+│ ├── index.html          # Archivo HTML principal
+│ ├── app.js              # Aplicación JavaScript
+│ ├── styles.css          # Estilos CSS
+│ ├── server.py           # Servidor de desarrollo
+│ └── lib/                # Bibliotecas externas
+│ └── chart.min.js        # Chart.js para gráficos
+└── README.md             # Este archivo
 ```
 
-## 🚀 Getting Started
+## 🚀 Primeros pasos
 
-### Backend Setup
+### Configuración del backend
 
-1. **Navigate to backend directory:**
-   ```bash
-   cd backend
-   ```
-
-2. **Install Python dependencies:**
-   ```bash
-   pip3 install -r requirements.txt
-   ```
-
-3. **Choose your server:**
-
-   **Option A: Test Server (Recommended for development)**
-   ```bash
-   python3 test_server.py
-   ```
-   - ✅ No database required
-   - ✅ In-memory storage
-   - ✅ Full type hints
-   - ✅ Fast development
-
-   **Option B: Full Application (Requires database)**
-   ```bash
-   python3 app.py
-   ```
-   - 🔧 Requires MySQL database
-   - 🔧 Configure .env file
-   - ✅ Full type hints
-   - ✅ Persistent storage
-
-### Frontend Setup
-
-1. **Navigate to frontend directory:**
-   ```bash
-   cd frontend
-   ```
-
-2. **Start the frontend server:**
-   ```bash
-   python3 server.py
-   ```
-
-3. **Open in browser:**
-   - Frontend: http://localhost:8000
-   - Backend API: http://localhost:3000/api
-
-## 🏗️ Architecture
-
-### Backend (Python with Type Hints)
-- **Framework:** Flask with full type annotations
-- **Database:** SQLAlchemy + MySQL (optional for test server)
-- **API:** RESTful API with comprehensive type hints
-- **Features:**
-  - Complete type safety with Python typing
-  - Dataclasses for request/response models
-  - Type-annotated functions and variables
-  - Union types for flexible responses
-
-### Frontend (JavaScript)
-- **Technology:** Vanilla JavaScript with modern async/await
-- **Styling:** Custom CSS with responsive design
-- **Charts:** Chart.js for data visualization
-- **Architecture:** Single-page application with API integration
-
-## 🔧 API Endpoints
-
-All endpoints include full type hints in the backend:
-
-### Configuration
-- `GET /api/config` - Get global lambda configuration
-- `PUT /api/config` - Update global lambda configuration
-
-### Teams
-- `GET /api/teams` - List all teams with statistics
-- `POST /api/teams` - Create new team
-- `DELETE /api/teams/{id}` - Delete team
-- `GET /api/teams/{id}/tests` - Get team's test history
-
-### Tests/Scores
-- `POST /api/tests` - Add new test score
-
-### Rankings
-- `GET /api/rankings` - Get current rankings with weighted scores
-
-## 🎯 Features
-
-### Typed Backend Features
-- **Full type hints** throughout the codebase
-- **Dataclasses** for structured data
-- **Union types** for flexible API responses
-- **Type-safe database models**
-- **Comprehensive error handling**
-
-### Core Features
-- **Exponential Decay Algorithm:** Configurable lambda parameter for score weighting
-- **Team Management:** Add, delete, and track teams
-- **Score Tracking:** Record test scores with dates and custom lambda values
-- **Dynamic Rankings:** Real-time ranking calculations
-- **Data Visualization:** Interactive charts showing team progress
-- **Import/Export:** JSON data backup and restore
-
-## 📊 Exponential Decay Algorithm
-
-The system uses a weighted scoring algorithm where recent performance has more impact:
-
-```
-Weighted Score = (1 - λ) × Σ(λ^(n-i-1) × score_i)
+1. **Ir al directorio del backend:**
+```bash
+cd backend
 ```
 
-Where:
-- `λ` (lambda): Decay factor (0.1 to 1.0)
-- `n`: Total number of tests
-- `i`: Test position (chronologically ordered)
+2. **Instalar las dependencias de Python:**
+```bash
+pip3 install -r requirements.txt
+```
 
-## 🛠️ Development
+3. **Elige tu servidor:**
 
-### Type Checking
-The backend includes comprehensive type hints:
+**Opción A: Servidor de pruebas (Recomendado para desarrollo)**
+```bash
+python3 test_server.py
+```
+- ✅ No se requiere base de datos
+- ✅ Almacenamiento en memoria
+- ✅ Sugerencias de tipo completas
+- ✅ Desarrollo rápido
+
+**Opción B: Aplicación completa (Requiere base de datos)**
+```bash
+python3 app.py
+```
+- 🔧 Requiere base de datos MySQL
+- 🔧 Configurar archivo .env
+- ✅ Sugerencias de tipo completas
+- ✅ Almacenamiento persistente
+
+### Configuración del frontend
+
+1. **Ir al directorio del frontend:**
+```bash
+cd frontend
+```
+
+2. **Iniciar el servidor frontend:**
+```bash
+python3 server.py
+```
+
+3. **Abrir en el navegador:**
+- Frontend: http://localhost:8000
+- API del backend: http://localhost:3000/api
+
+## 🏗️ Arquitectura
+
+### Backend
+- **Framework:** Flask con anotaciones de tipo completas
+- **Base de datos:** SQLAlchemy + MySQL (opcional para el servidor de pruebas)
+- **API:** API RESTful con sugerencias de tipo completas
+- **Características:**
+- Seguridad de tipos completa con tipado en Python
+- Clases de datos para modelos de solicitud/respuesta
+- Funciones y variables con anotaciones de tipo
+- Tipos de unión para respuestas flexibles
+
+### Frontend
+- **Tecnología:** JavaScript estándar con async/await moderno
+- **Estilo:** CSS personalizado con diseño adaptable
+- **Gráficos:** Chart.js para visualización de datos
+- **Arquitectura:** Aplicación de página única con integración de API
+
+## 🔧 Endpoints de la API
+
+Todos los endpoints incluyen sugerencias de tipo completas en el backend:
+
+### Configuración
+- `GET /api/config` - Obtener la configuración global de lambda
+- `PUT /api/config` - Actualizar la configuración global de lambda Configuración
+
+### Equipos
+- `GET /api/teams` - Listar todos los equipos con estadísticas
+- `POST /api/teams` - Crear un nuevo equipo
+- `DELETE /api/teams/{id}` - Eliminar un equipo
+- `GET /api/teams/{id}/tests` - Obtener el historial de pruebas del equipo
+
+### Pruebas/Puntuaciones
+- `POST /api/tests` - Añadir una nueva puntuación de prueba
+
+### Clasificaciones
+- `GET /api/rankings` - Obtener las clasificaciones actuales con puntuaciones ponderadas
+
+## 🎯 Características
+
+### Características del backend tipado
+- **Sugerencias de tipo completas** en todo el código base
+- **Clases de datos** para datos estructurados
+- **Tipos de unión** para respuestas de API flexibles
+- **Modelos de base de datos con seguridad de tipos**
+- **Gestión integral de errores**
+
+### Características principales
+- **Algoritmo de decaimiento exponencial:** Parámetro lambda configurable para la puntuación Ponderación
+- **Gestión de equipos:** Añadir, eliminar y hacer seguimiento de equipos
+- **Seguimiento de puntuaciones:** Registrar las puntuaciones de las pruebas con fechas
+- **Clasificaciones dinámicas:** Cálculos de clasificaciones en tiempo real
+- **Visualización de datos:** Gráficos interactivos que muestran el progreso del equipo
+- **Importación/Exportación:** Copia de seguridad y restauración de datos JSON
+
+## 📊 Algoritmo de decaimiento exponencial
+
+El sistema utiliza un algoritmo de puntuación ponderada donde el rendimiento reciente tiene mayor impacto:
+
+```
+Puntuación ponderada = (1 - λ) × Σ(λ^(n-i-1) × puntuación_i)
+```
+
+Donde:
+- `λ` (lambda): Factor de decaimiento (0,1 a 1,0)
+- `n`: Número total de pruebas
+- `i`: Posición de la prueba (ordenada cronológicamente)
+
+## 🛠️ Desarrollo
+
+### Comprobación de tipos
+El backend incluye una verificación de tipos completa Sugerencias:
 
 ```python
-def calculate_weighted_score(team_id: int, global_lambda: float = 0.75) -> float:
-    """Calculate weighted score with exponential decay"""
-    tests: List[Test] = Test.query.filter_by(team_id=team_id).all()
-    # ... implementation
+def calculate_weighted_score(team_id: int, global_lambda: float = 0.95) -> float:
+"""Calcular la puntuación ponderada con decremento exponencial"""
+pruebas: List[Test] = Test.query.filter_by(team_id=team_id).all()
+# ... implementación
 ```
 
-### Adding New Features
-1. **Backend:** Add type hints to all new functions and classes
-2. **Frontend:** Update API calls in `app.js`
-3. **Testing:** Use the test server for rapid development
+## 📝 Variables de entorno
 
-## 📝 Environment Variables
-
-Create a `.env` file in the backend directory:
+Crear un archivo `.env` en el directorio del backend:
 
 ```env
-# Database Configuration
+# Base de datos Configuración
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=evaluacion_deportiva
 DB_PORT=3306
 
-# Server Configuration
+# Configuración del servidor
 PORT=3000
 NODE_ENV=development
 
-# CORS Configuration
+# Configuración de CORS
 FRONTEND_URL=http://localhost:8000
 ```
 
-## 🧪 Testing
+## 🧪 Pruebas
 
-- **Test Server:** Run `python3 backend/test_server.py` for development
-- **Frontend:** Open http://localhost:8000 after starting both servers
-- **API Testing:** Use tools like Postman or curl with http://localhost:3000/api
-
-## 🔄 Migration from Previous Version
-
-The previous single-file structure has been reorganized:
-- ✅ Backend moved to `backend/` with full typing
-- ✅ Frontend moved to `frontend/` 
-- ✅ Separation of concerns
-- ✅ Better development workflow
-- ✅ Type safety throughout
-
-## 📈 Performance
-
-- **Backend:** Type hints enable better IDE support and runtime optimization
-- **Frontend:** Efficient API calls with proper async/await patterns
-- **Database:** Optimized queries with SQLAlchemy (when using full app)
-- **Memory:** Test server provides fast in-memory operations for development
-
-## 🤝 Contributing
-
-1. Use type hints for all Python code
-2. Follow the established project structure
-3. Test with both servers (test and full)
-4. Maintain API compatibility
-
-## 📄 License
-
-[Add your license information here]
+- **Servidor de pruebas:** Ejecutar `python3 backend/test_server.py` para desarrollo
+- **Frontend:** Abrir http://localhost:8000
