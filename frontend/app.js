@@ -279,14 +279,21 @@ class SportsEvaluationSystem {
         if (!team || team.tests.length === 0) return 0;
 
         const tests = team.tests;
-        const n = tests.length;
         let weightedSum = 0;
+        const today = new Date();
 
-        for (let i = 0; i < n; i++) {
-            const test = tests[i];
+        // Sort tests by date
+        const sortedTests = [...tests].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        for (const test of sortedTests) {
+            const testDate = new Date(test.date);
+            const daysDiff = Math.floor((today - testDate) / (1000 * 60 * 60 * 24)); // Days difference
+            
+            // Weekly decay factor (same as backend)
+            const decayFactor = daysDiff / 7;
             const lambda = test.lambda || this.lambda;
-            const power = n - i - 1;
-            const weight = Math.pow(lambda, power);
+            const weight = Math.pow(lambda, decayFactor);
+            
             weightedSum += weight * test.score;
         }
 

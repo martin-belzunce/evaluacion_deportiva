@@ -191,9 +191,11 @@ def create_test() -> JSONResponse:
         return jsonify({'error': f'Invalid data format: {str(e)}'}), 400
 
 def calculate_weighted_score(team_id: int) -> float:
-    """Calculate weighted score with exponential decay"""
+    """Calculate weighted score with time-based exponential decay"""
     if team_id not in teams_data:
         return 0.0
+    
+    from datetime import datetime
     
     team: TeamData = teams_data[team_id]
     tests: List[Dict[str, Any]] = team.tests
@@ -201,17 +203,21 @@ def calculate_weighted_score(team_id: int) -> float:
     if not tests:
         return 0.0
     
-    n: int = len(tests)
     weighted_sum: float = 0.0
     global_lambda: float = config_data['global_lambda']
+    today = datetime.now()
     
     # Sort tests by date
     sorted_tests = sorted(tests, key=lambda x: x['test_date'])
     
-    for i, test in enumerate(sorted_tests):
+    for test in sorted_tests:
         lambda_val: float = test.get('lambda_value', global_lambda)
-        power: int = n - i - 1
-        weight: float = lambda_val ** power
+        test_date = datetime.fromisoformat(test['test_date'])
+        days_diff = (today - test_date).days
+        
+        # Weekly decay factor (adjust divisor for different time scales)
+        decay_factor = days_diff / 7
+        weight: float = lambda_val ** decay_factor
         weighted_sum += weight * test['score']
     
     normalizer: float = 1 - global_lambda

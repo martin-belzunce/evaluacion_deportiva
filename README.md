@@ -8,7 +8,7 @@ Un sistema integral de evaluación deportiva con un algoritmo de clasificación 
 evaluación_deportiva/
 ├── backend/              # Backend de Python con sugerencias de tipos completas
 │ ├── app.py              # Aplicación principal de Flask (con base de datos)
-│ ├── test_server.py      # Servidor de pruebas (en memoria, sin base de datos)
+│ ├── server.py           # Servidor de Backend
 │ ├── requirements.txt    # Dependencias de Python
 │ ├── .env                # Variables de entorno
 │ └── database.sql        # Esquema de la base de datos
@@ -40,7 +40,7 @@ pip3 install -r requirements.txt
 
 **Opción A: Servidor de pruebas (Recomendado para desarrollo)**
 ```bash
-python3 test_server.py
+python3 server.py
 ```
 - ✅ No se requiere base de datos
 - ✅ Almacenamiento en memoria
@@ -174,5 +174,5 @@ FRONTEND_URL=http://localhost:8000
 
 ## 🧪 Pruebas
 
-- **Servidor de pruebas:** Ejecutar `python3 backend/test_server.py` para desarrollo
+- **Servidor de pruebas:** Ejecutar `python3 backend/server.py` para desarrollo
 - **Frontend:** Abrir http://localhost:8000

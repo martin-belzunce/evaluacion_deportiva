@@ -53,7 +53,7 @@ flyctl volumes create sports_data --size 1
 ### Step 3: Deploy
 ```bash
 # Deploy your application
-flyctl deploy
+flyctl deploy --env DATABASE_PATH=/data/sports_evaluation.db
 
 # Your app will be live at: https://your-app-name.fly.dev
 ```

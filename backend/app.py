@@ -15,9 +15,7 @@ app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app, origins=["*"])  # Allow all origins for deployment
 
 # Database setup for production
-DATABASE_FILE = os.environ.get('DATABASE_PATH', 
-    '/tmp/sports_evaluation.db' if os.environ.get('VERCEL') 
-    else 'sports_evaluation.db')
+DATABASE_FILE = os.environ['DATABASE_PATH']
 
 def init_database():
     """Initialize SQLite database with required tables."""
