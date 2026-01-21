@@ -21,7 +21,7 @@ El Sistema de Evaluación Deportiva es una aplicación web diseñada para regist
 
 ## 📦 Instalación y Despliegue
 1. **Requisitos**:
-   - Docker (recomendado) o Python 3.8+
+   - Docker 
    - Node.js v14+ (para desarrollo frontend)
 
 2. **Método Docker (recomendado)**:
@@ -31,20 +31,19 @@ El Sistema de Evaluación Deportiva es una aplicación web diseñada para regist
    ```
 
 ## 📝 Funcionalidades Principales
-1. **Registro de Evaluaciones**
-   - Ingreso de datos técnicos (precisiones de tiro, pases, etc.)
-   - Medición de parámetros físicos (velocidad, resistencia, fuerza)
+1. **Gestión de Usuarios**
+   - Registro de equipos
+   - Asignación de evaluaciones a equipos
+
+2. **Registro de Evaluaciones**
+   - Ingreso de datos de encuentros
+   - carga de puntajes obtenidos por actividad
    - Cálculo automático de índice de rendimiento
 
-2. **Visualización de Datos**
-   - Gráficos comparativos por jugador
+3. **Visualización de Datos**
+   - Gráficos comparativos por equipo
    - Análisis histórico de progresos
-   - Exportación de reportes PDF
-
-3. **Gestión de Usuarios**
-   - Registro de deportistas (nombre, edad, posición)
-   - Asignación de evaluaciones a equipos
-   - Control de acceso por roles
+   - Exportación de datos
 
 ## 📺 Interfaz de Usuario
 ### Dashboard Principal
