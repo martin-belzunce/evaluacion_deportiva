@@ -1,0 +1,8 @@
+{
+  "name": "Sistema de Evaluación Deportiva",
+  "short_name": "EvalDeportiva",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2196F3"
+}

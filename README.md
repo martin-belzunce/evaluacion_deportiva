@@ -36,24 +36,14 @@ cd backend
 pip3 install -r requirements.txt
 ```
 
-3. **Elige tu servidor:**
+3. **Servidor de backend:**
 
-**Opción A: Servidor de pruebas (Recomendado para desarrollo)**
-```bash
-python3 server.py
-```
-- ✅ No se requiere base de datos
-- ✅ Almacenamiento en memoria
-- ✅ Sugerencias de tipo completas
-- ✅ Desarrollo rápido
-
-**Opción B: Aplicación completa (Requiere base de datos)**
+**Aplicación completa (Requiere base de datos)**
 ```bash
 python3 app.py
 ```
 - 🔧 Requiere base de datos MySQL
 - 🔧 Configurar archivo .env
-- ✅ Sugerencias de tipo completas
 - ✅ Almacenamiento persistente
 
 ### Configuración del frontend

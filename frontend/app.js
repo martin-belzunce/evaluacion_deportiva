@@ -9,10 +9,12 @@ class SportsEvaluationSystem {
         this.lambda = 0.95;
         this.chart = null;
         // Use production API URL when deployed, localhost for development
-        this.apiUrl = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3001/api' 
+        this.apiUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:8000/api'
             : '/api';
         this.init();
+        // Make addTeam globally accessible
+        window.addTeam = this.addTeam.bind(this);
     }
 
     async init() {
@@ -24,7 +26,7 @@ class SportsEvaluationSystem {
         this.initChart();
     }
 
-    setupEventListeners() {
+    async setupEventListeners() {
         // Lambda global control
         const lambdaSlider = document.getElementById('lambdaGlobal');
         lambdaSlider.addEventListener('input', async (e) => {
@@ -52,12 +54,28 @@ class SportsEvaluationSystem {
 
         // Enter key support for forms
         document.getElementById('nombreEquipo').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') agregarEquipo();
+            if (e.key === 'Enter') this.addTeam(document.getElementById('nombreEquipo').value);
         });
-
+        
         document.getElementById('puntajePrueba').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') agregarPuntaje();
         });
+        
+        // Discipline input field enter key support
+        const disciplineInput = document.getElementById('nombreDisciplina');
+        if (disciplineInput) {
+            disciplineInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    // Trigger the existing agregarDisciplina function
+                    if (window.agregarDisciplina) {
+                        window.agregarDisciplina();
+                    }
+                }
+            });
+        }
+
+        // Load disciplines
+        await this.loadDisciplines();
     }
 
     setCurrentDate() {
@@ -71,7 +89,7 @@ class SportsEvaluationSystem {
             const response = await fetch(`${this.apiUrl}/config`);
             if (response.ok) {
                 const config = await response.json();
-                this.lambda = config.global_lambda || 0.75;
+                this.lambda = config.global_lambda || 0.95;
                 
                 // Update UI
                 document.getElementById('lambdaGlobal').value = this.lambda;
@@ -213,7 +231,7 @@ class SportsEvaluationSystem {
         }
     }
 
-    async addTest(teamName, score, date) {
+    async addTest(teamName, score, date, disciplineId) {
         if (!teamName || !this.teams.has(teamName)) {
             alert('Por favor selecciona un equipo válido.');
             return false;
@@ -229,6 +247,11 @@ class SportsEvaluationSystem {
             return false;
         }
 
+        if (!disciplineId) {
+            alert('Por favor selecciona una disciplina.');
+            return false;
+        }
+
         const team = this.teams.get(teamName);
         
         try {
@@ -239,6 +262,7 @@ class SportsEvaluationSystem {
                 },
                 body: JSON.stringify({
                     team_id: team.id,
+                    discipline_id: disciplineId,
                     score: parseFloat(score),
                     test_date: date
                 })
@@ -252,7 +276,8 @@ class SportsEvaluationSystem {
                     score: test.score,
                     date: test.test_date,
                     lambda: test.lambda_value,
-                    timestamp: test.created_at
+                    timestamp: test.created_at,
+                    discipline_id: disciplineId
                 };
 
                 team.tests.push(localTest);
@@ -262,6 +287,8 @@ class SportsEvaluationSystem {
                 this.showStatus('Puntaje agregado correctamente', 'success');
                 this.clearTestForm();
                 return true;
+            // Clear discipline selection after successful submission
+            document.getElementById('disciplinaSeleccionada').value = '';
             } else {
                 const error = await response.json();
                 alert(error.error || 'Error al agregar puntaje');
@@ -299,6 +326,65 @@ class SportsEvaluationSystem {
 
         const normalizer = 1 - this.lambda;
         return normalizer * weightedSum;
+    }
+
+    getDisciplineName(disciplineId) {
+        const discipline = this.disciplines.find(d => d.id === disciplineId);
+        return discipline ? discipline.name : 'Desconocida.';
+    }
+
+    showTeamHistory(teamName) {
+        const team = this.teams.get(teamName);
+        if (!team || team.tests.length === 0) {
+            alert('No hay historial disponible para este equipo');
+            return;
+        }
+
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('teamHistoryModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'teamHistoryModal';
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-btn" onclick="document.getElementById('teamHistoryModal').style.display='none'">&times;</span>
+                    <h2>Historial de ${teamName}</h2>
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Disciplina</th>
+                                <th>Puntaje</th>
+                                <th>λ usado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamHistoryBody">
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Update table content
+        const tbody = document.getElementById('teamHistoryBody');
+        tbody.innerHTML = '';
+
+        team.tests.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(test => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${test.date}</td>
+                <td>${test.discipline_id}</td>
+                <td>${this.getDisciplineName(test.discipline_id)}</td>
+                <td>${test.score}</td>
+                <td>${this.lambda.toFixed(2)}</td>
+                `;
+            tbody.appendChild(row);
+        });
+
+        // Show modal
+        modal.style.display = 'block';
     }
 
     updateRankings() {
@@ -341,6 +427,132 @@ class SportsEvaluationSystem {
                 </td>
             `;
             tbody.appendChild(row);
+        });
+    }
+
+    async loadDisciplines() {
+        try {
+            const response = await fetch(`${this.apiUrl}/disciplines`);
+            if (response.ok) {
+                this.disciplines = await response.json();
+                this.updateDisciplineSelector();
+                this.renderDisciplinesList();
+            }
+        } catch (error) {
+            console.error('Error loading disciplines:', error);
+            this.showStatus('Error al cargar disciplinas', 'error');
+        }
+    }
+
+    async addDiscipline(name = '') {
+        if (!name || name.trim() === '') {
+            alert('Por favor ingresa un nombre válido para la disciplina.');
+            return false;
+        }
+
+        const disciplineName = name.trim();
+        if (this.disciplines.some(d => d.name === disciplineName)) {
+            alert('Esta disciplina ya existe.');
+            return false;
+        }
+
+        try {
+            const response = await fetch(`${this.apiUrl}/disciplines`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: disciplineId,
+                    name: disciplineName
+                })
+            });
+
+            if (response.ok) {
+                const discipline = await response.json();
+                this.disciplines.push(discipline);
+                this.updateDisciplineSelector();
+                this.renderDisciplinesList();
+                this.showStatus('Disciplina agregada correctamente', 'success');
+                return true;
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error al agregar disciplina');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error adding discipline:', error);
+            this.showStatus('Error al agregar disciplina', 'error');
+            return false;
+        }
+    }
+
+    async removeDiscipline(disciplineName) {
+        if (!confirm(`¿Estás seguro de que quieres eliminar la disciplina "${disciplineName}"?`)) {
+            return;
+        }
+
+        const discipline = this.disciplines.find(d => d.name === disciplineName);
+        if (!discipline || !discipline.id) {
+            alert('Error: No se puede eliminar la disciplina');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${this.apiUrl}/disciplines/${discipline.id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                this.disciplines = this.disciplines.filter(d => d.id !== discipline.id);
+                this.updateDisciplineSelector();
+                this.renderDisciplinesList();
+                this.showStatus('Disciplina eliminada', 'success');
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error al eliminar disciplina');
+            }
+        } catch (error) {
+            console.error('Error removing discipline:', error);
+            this.showStatus('Error al eliminar disciplina', 'error');
+        }
+    }
+
+    renderDisciplinesList() {
+        const container = document.getElementById('listaDisciplinas');
+        container.innerHTML = '';
+
+        if (this.disciplines.length === 0) {
+            container.innerHTML = '<p class="empty-state">No hay disciplinas registradas</p>';
+            return;
+        }
+
+        this.disciplines.sort((a, b) => a.name.localeCompare(b.name)).forEach(discipline => {
+            const disciplineCard = document.createElement('div');
+            disciplineCard.className = 'discipline-card';
+            disciplineCard.innerHTML = `
+                <span class="discipline-name">${discipline.name}</span>
+                <button class="btn btn-small btn-danger" onclick="sportsSystem.removeDiscipline('${discipline.name}')">
+                    🗑️
+                </button>
+            `;
+            container.appendChild(disciplineCard);
+        });
+    }
+
+    updateDisciplineSelector() {
+        const select = document.getElementById('disciplinaSeleccionada');
+        if (!select) return;
+
+        // Clear existing options
+        select.innerHTML = '<option value="">Seleccionar disciplina</option>';
+
+        // Add discipline options
+        this.disciplines.forEach(discipline => {
+            const option = document.createElement('option');
+            option.value = discipline.id;
+            option.textContent = discipline.name;
+            select.appendChild(option);
         });
     }
 
@@ -394,45 +606,45 @@ class SportsEvaluationSystem {
         });
     }
 
-    showTeamHistory(teamName) {
-        const team = this.teams.get(teamName);
-        if (!team) return;
+    // showTeamHistory(teamName) {
+    //     const team = this.teams.get(teamName);
+    //     if (!team) return;
 
-        const content = document.getElementById('contenidoHistorico');
-        content.innerHTML = `
-            <h4>${teamName}</h4>
-            <div class="history-stats">
-                <div class="stat">
-                    <strong>Pruebas realizadas:</strong> ${team.tests.length}
-                </div>
-                <div class="stat">
-                    <strong>Puntaje ponderado actual:</strong> ${this.calculateWeightedScore(teamName).toFixed(3)}
-                </div>
-            </div>
-            <div class="history-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Puntaje</th>
-                            <th>λ usado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${team.tests.map(test => `
-                            <tr>
-                                <td>${new Date(test.date).toLocaleDateString('es-ES')}</td>
-                                <td>${test.score}</td>
-                                <td>${(test.lambda || this.lambda).toFixed(2)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
+    //     const content = document.getElementById('contenidoHistorico');
+    //     content.innerHTML = `
+    //         <h4>${teamName}</h4>
+    //         <div class="history-stats">
+    //             <div class="stat">
+    //                 <strong>Pruebas realizadas:</strong> ${team.tests.length}
+    //             </div>
+    //             <div class="stat">
+    //                 <strong>Puntaje ponderado actual:</strong> ${this.calculateWeightedScore(teamName).toFixed(3)}
+    //             </div>
+    //         </div>
+    //         <div class="history-table">
+    //             <table>
+    //                 <thead>
+    //                     <tr>
+    //                         <th>Fecha</th>
+    //                         <th>Puntaje</th>
+    //                         <th>λ usado</th>
+    //                     </tr>
+    //                 </thead>
+    //                 <tbody>
+    //                     ${team.tests.map(test => `
+    //                         <tr>
+    //                             <td>${new Date(test.date).toLocaleDateString('es-ES')}</td>
+    //                             <td>${test.score}</td>
+    //                             <td>${(test.lambda || this.lambda).toFixed(2)}</td>
+    //                         </tr>
+    //                     `).join('')}
+    //                 </tbody>
+    //             </table>
+    //         </div>
+    //     `;
 
-        document.getElementById('modalHistorico').style.display = 'block';
-    }
+    //     document.getElementById('modalHistorico').style.display = 'block';
+    // }
 
     initChart() {
         const ctx = document.getElementById('graficoEvolucion');
@@ -644,7 +856,7 @@ class SportsEvaluationSystem {
             if (saved) {
                 const data = JSON.parse(saved);
                 this.teams = new Map(data.teams);
-                this.lambda = data.lambda || 0.75;
+                this.lambda = data.lambda || 0.95;
                 
                 // Update lambda slider
                 document.getElementById('lambdaGlobal').value = this.lambda;
@@ -696,7 +908,7 @@ class SportsEvaluationSystem {
                 
                 if (data.teams && Array.isArray(data.teams)) {
                     this.teams = new Map(data.teams);
-                    this.lambda = data.lambda || 0.75;
+                    this.lambda = data.lambda || 0.95;
                     
                     // Update UI
                     document.getElementById('lambdaGlobal').value = this.lambda;
@@ -737,12 +949,26 @@ async function eliminarEquipo(teamName) {
     await sportsSystem.removeTeam(teamName);
 }
 
+async function agregarDisciplina() {
+    const input = document.getElementById('nombreDisciplina');
+    const name = input.value.trim();
+
+    if (await sportsSystem.addDiscipline(name)) {
+        input.value = '';
+    }
+}
+
+async function eliminarDisciplina(name) {
+    await sportsSystem.removeDiscipline(name);
+}
+
 async function agregarPuntaje() {
+    const date = document.getElementById('fechaPrueba').value;
+    const discipline = document.getElementById('disciplinaSeleccionada').value;
     const team = document.getElementById('equipoSeleccionado').value;
     const score = parseFloat(document.getElementById('puntajePrueba').value);
-    const date = document.getElementById('fechaPrueba').value;
     
-    await sportsSystem.addTest(team, score, date);
+    await sportsSystem.addTest(team, score, date, discipline);
 }
 
 function mostrarHistorico(teamName) {
